@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend  # Chemin vers le répertoire contenant le Dockerfile de Django
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1  # Assurez-vous de configurer les variables d'environnement appropriées
+
+  frontend:
+    build: ./sgn_frontend  # Chemin vers le répertoire contenant le Dockerfile de React
+    volumes:
+      - ./frontend:/app
+      - /sgn_frontend/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
