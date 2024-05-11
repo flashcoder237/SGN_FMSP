@@ -7,6 +7,7 @@ import CIcon from '@coreui/icons-react';
 import { cilCaretRight } from '@coreui/icons';
 import DepartementList from './Lists/DepartementsList';
 import FiliereList from './Lists/FilieresList';
+import EtudiantAddFormOrCsv from './EtudiantAddFormOrCsv';
 
 const GU_DynamicFormComponent: React.FC = () => {
     const [selectedType, setSelectedType] = useState<string>('form');
@@ -84,7 +85,7 @@ const GU_DynamicFormComponent: React.FC = () => {
             <div className='flex-auto p-1 dark:bg-gray-900'>
                 <div className={`${(selectedType === "view")? `ml-10 items-center bg-gray-50 rounded shadow-lg  shadow-blue-300 justify-center mx-auto p-10`:`items-center bg-gray-50 w-2/3 rounded shadow-lg  shadow-blue-300 justify-center mx-auto p-10`}`}>
                     {(selectedType === "form") && (
-                        (selectedForm === 'ajout_etudiant' && <EtudiantForm />) ||
+                        (selectedForm === 'ajout_etudiant' && <EtudiantAddFormOrCsv />) ||
                         (selectedForm === 'ajout_filière' && <FiliereForm />) ||
                         (selectedForm === 'ajout_classe' && <LevelForm />)
                     )}

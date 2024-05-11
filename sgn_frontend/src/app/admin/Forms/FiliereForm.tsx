@@ -135,7 +135,7 @@ const FiliereForm: React.FC = () => {
                 onInputChange={handleInputIntChange}
             />
 
-        <Button name='Ajouter' type='submit'/>
+        <Button color="blue" name='Ajouter' type='submit'/>
         </form>
         <div className={`${resultAdd ? 'block transition-all ease-in duration-150':'hidden'}`}>
         

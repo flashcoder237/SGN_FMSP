@@ -61,7 +61,7 @@ const DepartmentForm: React.FC = () => {
                 onInputChange={(value: string) => handleInputChange(value, 'description')}
             />
         
-            <Button name='Ajouter' type='submit'/>
+            <Button color="blue" name='Ajouter' type='submit'/>
         </form>
         <div className={`${resultAdd ? 'block':'hidden'}`}>
         

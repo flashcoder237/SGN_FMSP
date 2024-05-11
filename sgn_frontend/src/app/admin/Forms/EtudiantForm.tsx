@@ -16,8 +16,9 @@ import { fetchAnneAcademiques } from '../../services/AnneeAcademiqueService';
 import { fetchOptions } from '../../services/optionService';
 import { OptionFormData } from './../dataTypes/data';
 import { getClasse } from '../../services/classeService';
-import InputImage from '../../../Components/Atoms/InputImage';
+import InputFile from '../../../Components/Atoms/InputFile';
 import FailedModal from '../../../Components/Organisms/FailedModal';
+
 
 
 
@@ -105,7 +106,7 @@ const EtudiantForm: React.FC = () => {
         SetDefaultSelectNiveau(Number(selectedNiveau));
       };
 
-      const handlePhotoChange = (file : File | null) => {
+      const handleFileChange = (file : File | null) => {
         setFormData(prevState => ({
             ...prevState,
             photo: file || null
@@ -249,10 +250,10 @@ const EtudiantForm: React.FC = () => {
 
     return (
         <div>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-            <h2 className='text-2xl font-semibold mb-5'>Nouvel Etudiant</h2>
+            <form onSubmit={handleSubmit} encType="multipart/form-data" className='mt-4'>
+            <h2 className='text-2xl font-bold mb-1 text-blue-950'>Nouvel Etudiant</h2>
             { anneeActive &&
-                <h5 className='mb-4'>Les etudiants ajoutés sont celle de l'année active {anneeActive} </h5>
+                <h5 className='mb-4 italic text-sm text-gray-500'>Les etudiants ajoutés sont celle de l'année active {anneeActive} </h5>
             } 
             { !anneeActive &&
                 <h5 className='mb-4'>Aucune année académque n'est active pour le moment </h5>
@@ -323,14 +324,16 @@ const EtudiantForm: React.FC = () => {
                 value={formData.date_naissance}
                 onInputChange={handleInputChange}
             />
-            <InputImage
+            <InputFile
                 type="file"
                 name="photo"
+                fileType="image/*"
                 labelName="Photo (4x4) de l'étudiant"
-                onInputImageChange={handlePhotoChange}
+                description="SVG, PNG, JPG or GIF (MAX. 400x400px)"
+                onInputFileChange={handleFileChange}
             />
 
-        <Button name='Ajouter' type='submit'/>
+        <Button color="blue" name='Ajouter' type='submit'/>
         </form>
         <div className={`${resultAdd ? 'block transition-all ease-in duration-150':'hidden'}`}>
         <Modal title='Etudiant ajouté avec succès!' onResultChange={handleResultChange} message='Vous pouvez à présent ajouter des notes pour cette étudiant' />
