@@ -6,11 +6,26 @@ import { ChangeEvent } from 'react';
 import { cilTrash } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { cilPenAlt } from '@coreui/icons';
+import { deleteDepartment } from '../../services/departmentService';
+import FailedModal from '../../../Components/Organisms/FailedModal';
+import SucessModal from '../../../Components/Organisms/SucessModal';
 
 const DepartementList = () => {
     const [departements, setDepartements] = useState<DepartmentFormData[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [currentDepartements, setCurrentDepartements] = useState<DepartmentFormData[]>([]);
+    const [failRemove, setFailRemove] = useState(false);
+    const [failedMessage, setFailedMessage] = useState("Oups! Quelque chose à mal tournée"); 
+    const [resultDel, setresultDel] = useState(false);
+   
+
+    function handleResultChange(){
+        setresultDel(false);
+    }
+
+      function handleResultFailChange(){
+        setFailRemove(false);
+    }
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -27,7 +42,7 @@ const DepartementList = () => {
         const loadDepartements = async () => {
             try {
                 const response = await fetchDepartments();
-                setDepartements(response.data); // Assuming fetchDepartments returns the data correctly typed
+                setDepartements(response.data); 
             } catch (error) {
                 console.error('Error loading Departements:', error);
             }
@@ -41,6 +56,16 @@ const DepartementList = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+    const handleDeleteDepartment = async (id: number) => {
+      try{
+        const responseDelete = await deleteDepartment(id);
+        setCurrentDepartements(departements.filter(d => d.id !== id));
+        setresultDel(true)
+      }catch(err : any){
+        setFailRemove(true);
+        console.log(err);
+      }
+    }
 
   return (
 
@@ -85,7 +110,7 @@ const DepartementList = () => {
                   {/* ... (render departements data) */}
                   
                 <th scope="row" className="w-5 px-6 py-4 font-bold text-xl text-white whitespace-nowrap dark:text-white">
-                    <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-slate-500'>
+                    <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-800'>
                         <div className=''>
                         {departement.nom[0]}
                         </div>
@@ -98,14 +123,8 @@ const DepartementList = () => {
                 
                 </td>
                   <td className="px-1 py-3">
-                  {/* <Link to={`/invoices/${departement.nom}`}>
-                    <button className="p-2 mx-2 rounded text-white font-medium bg-blue-600 dark:text-blue-500 hover:underline">
-                      View
-                    </button>
-                  </Link> */}
-                    <button
-                    // onClick={() => handleDelete(departement.nom)} 
-                    className="p-2 mx-2 rounded text-white font-medium bg-red-600 dark:text-blue-500 hover:underline">
+                    <button onClick={() => handleDeleteDepartment(departement.id ? departement.id : -1)}
+                      className="p-2 mx-2 rounded text-white font-medium bg-red-600 dark:text-blue-500 hover:underline">
                       <CIcon icon={cilTrash} width={15} />
                     </button>
                     <Link to={`/invoices/edit/${departement.nom}`}>
@@ -159,6 +178,12 @@ const DepartementList = () => {
               </li>
             </ul>
           </nav>
+          <div className={`${failRemove ? 'block':'hidden'}`}>
+             <FailedModal title="Erreur lors de la suppréssion du département!" onResultChange={handleResultFailChange} message={failedMessage} />
+          </div>
+          <div className={`${resultDel ? 'block transition-all ease-in duration-150':'hidden'}`}>
+            <SucessModal title='Département supprimé avec succès!' onResultChange={handleResultChange} message='Vous pouvez à présent ajouter des filières à ce département' />
+          </div>
         </div>
       
   );

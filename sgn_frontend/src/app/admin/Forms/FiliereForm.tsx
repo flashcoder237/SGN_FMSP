@@ -3,9 +3,6 @@ import Input from '../../../Components/Atoms/Input';
 import { FiliereFormData, DepartmentFormData } from '../dataTypes/data';
 import { fetchDepartments } from '../../services/departmentService';
 import Select from '../../../Components/Atoms/Select';
-import { Description } from '@headlessui/react/dist/components/description/description';
-import { ChangeEvent } from 'react';
-import { FormEvent } from 'react';
 import Button from '../../../Components/Atoms/Button';
 import { createFiliere } from '../../services/filiereService';
 import Modal from '../../../Components/Organisms/SucessModal';
@@ -99,7 +96,7 @@ const FiliereForm: React.FC = () => {
     return (
         <div>
             <form onSubmit={handleSubmit}>
-            <h2 className='text-2xl font-semibold mb-5'>Nouvelle Filière</h2>
+            <h2 className='text-2xl font-bold text-blue-700 mb-5'>Nouvelle Filière</h2>
             <Select 
                 listItem={departements.map(e => ({value : (typeof e.id === "number" ?  e.id: 0), label: e.nom}))}
                 labelSelect="Sélectionner le département"

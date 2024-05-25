@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from SGN.views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -38,12 +40,17 @@ router.register(r'classes', ClasseViewSet)
 router.register(r'departements', DepartementViewSet)
 router.register(r'annee_academiques', AnneeAcademiqueViewSet)
 router.register(r'options', OptionViewSet)
+router.register(r'inscriptions', InscriptionViewSet)
+router.register(r'sessions', SessionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     
+    path('download_etudiant_template/', download_etudiant_template, name='download_etudiant_template'),
+    path('import_etudiant_template/', import_students_from_excel, name='download_etudiant_template'),
+    
     # JWT Auth URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

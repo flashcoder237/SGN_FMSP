@@ -145,7 +145,7 @@ const FiliereList = () => {
                     {/* ... (render filieres data) */}
                     
                 <th scope="row" className="px-6 py-4 font-bold text-xl text-white whitespace-nowrap dark:text-white">
-                    <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-slate-500'>
+                    <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-800'>
                         <div className='text-sm'>
                         {filiere.code}
                         </div>

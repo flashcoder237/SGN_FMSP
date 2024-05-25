@@ -31,19 +31,17 @@ const DepartmentForm: React.FC = () => {
         try {
             const response = await createDepartment(formData);
             setResultAdd(true);
-            // alert('Département ajouté avec succès!');
-            setFormData({ nom: '', description: '' }); // Reset form data
+            setFormData({ nom: '', description: '' });
         } catch (error) {
             setResultAdd(false)
             setFailAdd(true)
-            // alert('Erreur lors de l\'ajout du département');
         }
     };
 
     return (
       <div>
           <form onSubmit={handleSubmit}>
-            <h2 className='text-2xl font-semibold mb-5'>Nouveau département</h2>
+            <h2 className='text-2xl font-bold text-blue-700 mb-5'>Nouveau département</h2>
             <Input
                 type="text"
                 name="nom"

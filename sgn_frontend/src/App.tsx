@@ -9,6 +9,7 @@ import NotFound from './Components/Organisms/NotFound';
 import TasksLists from './app/admin/TasksLists';
 import GDF_DynamicFormComponent from './app/admin/GDF_DynamicFormComponent';
 import GU_DynamicFormComponent from './app/admin/GU_DynamicFormComponent';
+import GN_DynamicFormComponent from './app/admin/GN_DynamicFormComponent';
 
 
 const refreshTokenEvery = 30 * 60 * 1000; 
@@ -76,20 +77,21 @@ const App: React.FC = () => {
     return (
       <div className="App">
         <BrowserRouter>
-            <header className="App-header">
-                <Navbar />
-            </header>
                 {!isAuthenticated ? (
                     <Login onLoginSuccess={handleLoginSuccess} />
                 ) : (
                     <div className='container mt-32'>
+                        <header className="App-header">
+                            <Navbar />
+                        </header>
                         <Routes>
                                 <Route path="/" element={<DepartementList />} />
                                 <Route path="/administration" element={<TasksLists />} />
                                 <Route path="/administration/depart_et_fil" element={<GDF_DynamicFormComponent />} />
+                                <Route path="/administration/notes" element={<GN_DynamicFormComponent />} />
                                 <Route path="/administration/utilisateurs" element={<GU_DynamicFormComponent />} />
                                 <Route path="*" element={<NotFound />} />
-                            </Routes>
+                        </Routes>
                     </div>
                 )}
                 

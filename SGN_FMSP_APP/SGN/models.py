@@ -8,12 +8,15 @@ from django.contrib import admin
 from django import forms
 
 
+
 class Departement(models.Model):
     nom = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.nom
+    class Meta:
+        unique_together = ['nom']
     
 class DepartementAdmin(admin.ModelAdmin):
     list_display = ("nom", "description")
@@ -25,15 +28,32 @@ class Enseignant(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     departement = models.ForeignKey(Departement, on_delete=models.CASCADE)
+    date_naissance = models.DateField(default=datetime.datetime.now)
+    photo = models.ImageField(upload_to="Enseignants_Profiles",null=True,blank=True)
 
     def __str__(self):
         return self.nom + " " + self.prenom
+    
+    class Meta:
+        unique_together = ['nom', 'prenom', 'photo']
 
 
+class AnneeAcademiqueManager(models.Manager):
+    def get_by_years(self, debut, fin):
+        try:
+            return self.get(date_debut__year=debut, date_fin__year=fin)
+        except AnneeAcademique.DoesNotExist:
+            return None
+        
 class AnneeAcademique(models.Model):
     date_debut = models.DateField(default=datetime.date.today)
     date_fin = models.DateField(default=datetime.date.today)
     est_active = models.BooleanField(default=False)
+    objects = AnneeAcademiqueManager()
+    
+    class Meta:
+        unique_together = ['date_debut', 'date_fin']
+    
     def save(self, *args, **kwargs):
         if self.date_debut < self.date_fin :
             super().save(*args, **kwargs)
@@ -56,6 +76,8 @@ class Cours(models.Model):
 
     def __str__(self):
         return self.nom
+    class Meta:
+        unique_together = ['code', 'nom']
 
 class Filiere(models.Model):
     departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name="filieres")
@@ -68,14 +90,10 @@ class Filiere(models.Model):
     
     def save(self, *args, **kwargs):
         if self.pk:
-            # Récupérer l'instance existante de l'option
             options = Option.objects.filter(filiere=self)
             old_filiere = Filiere.objects.get(pk=self.pk)
-            # Vérifier si la durée de la filière a été modifiée
             if old_filiere.duree > self.duree:
-                # Pour chaque option,
                 for opt in options :
-                    # Supprimer les classes en excès
                     classes_to_delete = Classe.objects.filter(option=opt).order_by('-niveau')[:old_filiere.duree - self.duree]
                     for classe in classes_to_delete:
                         classe.delete()
@@ -85,8 +103,8 @@ class Filiere(models.Model):
                         Classe.objects.create(option=opt, niveau=niveau, annee_academique=AnneeAcademique.objects.get(est_active=True))
             super().save(*args, **kwargs)
         super().save(*args, **kwargs)
-class Meta:
-    unique_together = ['nom', 'code']       
+    class Meta:
+        unique_together = ['nom', 'code']       
     
 class Option(models.Model):
     nom = models.CharField(max_length=200)
@@ -110,13 +128,16 @@ class Option(models.Model):
         # Créer les classes uniquement pour l'année académique active
         for niveau in range(1, duree_filiere + 1):
             Classe.objects.get_or_create(option=self, annee_academique=annee_active, niveau=niveau)
-
+            
+    class Meta:
+        unique_together = ['nom', 'filiere']  
     
     def save(self, *args, **kwargs):
         if not self.pk:
             super().save(*args, **kwargs)
             self.create_classes()
-        super().save(*args, **kwargs)
+        else :
+            super().save(*args, **kwargs)
          
 
 
@@ -129,16 +150,13 @@ class Classe(models.Model):
     def __str__(self):
         return f"{self.option} : Niveau {self.niveau}"
     
-
-# class ClasseAdmin(admin.ModelAdmin):
-#     list_display = ("filiere", "description")
-#     list_filter = ["AnneeAcademique"]
-#     search_fields = ['filiere']
+    class Meta:
+        unique_together = ['option', 'annee_academique', 'niveau']    
+    
 
 
 class Etudiant(models.Model):
     matricule = models.CharField(max_length=20, unique=True)
-    classe = models.ForeignKey('Classe', on_delete=models.CASCADE, related_name="etudiants")
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
@@ -151,31 +169,59 @@ class Etudiant(models.Model):
         # S'assurer que l'âge de l'étudiant est plausible pour un universitaire
         if self.date_naissance.year > (datetime.date.today().year - 15):
             raise ValidationError("Vérifiez la date de naissance, elle semble incorrecte pour un étudiant universitaire.")
+        
+    def save(self, *args, **kwargs):
+        # Vérifier si l'attribut 'classe' est passé dans kwargs
+        classe_id = kwargs.pop('classe_id', None)
+
+        if classe_id is not None:
+            if Inscription.objects.filter(etudiant=self, classe_id=classe_id).exists():
+                raise ValidationError("L'étudiant est déjà inscrit à cette classe.")
+        super().save(*args, **kwargs)
+        
     class Meta:
         unique_together = ['matricule', 'nom', 'prenom', 'date_naissance']
 
+class Inscription(models.Model):
+    etudiant = models.ForeignKey('Etudiant', on_delete=models.CASCADE, related_name="etudiants")
+    classe = models.ForeignKey('Classe', on_delete=models.CASCADE, related_name="classes")
+    date_inscription = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Inscription de {self.etudiant} à la classe {self.classe} le {self.date_inscription}"
+    class Meta:
+        unique_together = ['etudiant', 'classe']
+    
+class InscriptionAdmin(admin.ModelAdmin):
+    list_display = ("etudiant", "classe", "date_inscription")
+    search_fields = ['etudiant__nom', 'classe__nom']
+    filter_fields = ['classe__nom', 'date_inscription']
+    
 class EtudiantAdmin(admin.ModelAdmin):
     list_display = ("matricule", "nom", "date_naissance")
-    list_filter = ["classe"]
     search_fields = ['nom']
 
 class UniteEnseignement(models.Model):
     code = models.CharField(max_length=10, unique=True)
     nom = models.CharField(max_length=200)
-    filiere = models.ForeignKey('Filiere', on_delete=models.CASCADE)
+    classe = models.ForeignKey('Classe', on_delete=models.CASCADE, related_name="Classes")
 
     def __str__(self):
         return f"{self.code} : {self.nom}"
+    class Meta:
+        unique_together = ('code', 'nom')
 
 class ElementConstitutif(models.Model):
     code = models.CharField(max_length=10, unique=True)
     nom = models.CharField(max_length=200)
     ue = models.ForeignKey('UniteEnseignement', on_delete=models.CASCADE)
-    # classe = models.ForeignKey('Classe', on_delete=models.CASCADE, null=True, blank=True)
     credits = models.IntegerField()
 
     def __str__(self):
         return self.nom
+    class Meta:
+        unique_together = ('code', 'nom')
+    
     
 class Evaluation(models.Model):
     TYPE_EVALUATION_CHOICES = [
@@ -194,13 +240,30 @@ class Evaluation(models.Model):
     def __str__(self):
         return f"{self.ec.nom} - {self.get_type_evaluation_display()} du {self.date}"
 
-
+@receiver(post_save, sender=Evaluation)
+def create_notes_for_evaluation(sender, instance, created, **kwargs):
+    if created:
+        inscriptions = Inscription.objects.filter(classe=instance.classe)
+        for inscription in inscriptions:
+            Note.objects.create(
+                etudiant=inscription.etudiant,
+                evaluation=instance,
+                session=Session.objects.filter(annee=instance.classe.annee_academique).first(),
+                saisie=False
+            )
 
 class Note(models.Model):
     etudiant = models.ForeignKey('Etudiant', on_delete=models.CASCADE)
     evaluation = models.ForeignKey('Evaluation', on_delete=models.CASCADE)
-    note = models.FloatField()
+    note = models.FloatField(null=True,blank=True)
     session = models.ForeignKey('Session', on_delete=models.CASCADE)
+    saisie = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        if self.note is not None:
+            self.saisie = True
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f"{self.etudiant} - {self.evaluation} : {self.note}"
@@ -208,20 +271,18 @@ class Note(models.Model):
 
 
 class Session(models.Model):
-    annee = models.IntegerField()
+    annee = models.ForeignKey('AnneeAcademique', on_delete=models.CASCADE, related_name="AnnneeAcademiques")
     semestre = models.IntegerField()
 
     def __str__(self):
         return f"Année {self.annee}, Semestre {self.semestre}"
+    
+    class Meta:
+        unique_together = ('annee', 'semestre')
 
 class ClasseAdmin(admin.ModelAdmin):
     list_display = ("option", "annee_academique", "niveau")
     list_filter = ["option", "annee_academique"]
     search_fields = ['option']
-    # search_fields = ['a']
-    # def get_queryset(self, request):
-    #     # Récupérer l'année académique active
-    #     annee_active = AnneeAcademique.objects.get(est_active=True)
-    #     # Filtrer les classes pour afficher uniquement celles de l'année active
-    #     return super().get_queryset(request).filter(annee_academique=annee_active)
+   
 

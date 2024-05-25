@@ -17,7 +17,7 @@ const Select = ({labelSelect, listItem, onSelectChange, value}:SelectProps) => {
     return (
     <div className="mb-3">
       <div
-        className="pb-1 text-md"
+        className="pb-1 text-md font-medium"
       >
         {labelSelect}
       </div>
@@ -26,7 +26,7 @@ const Select = ({labelSelect, listItem, onSelectChange, value}:SelectProps) => {
         id="departement"
         value={value}
         onChange={handleSelectChange}
-        className="pt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        className="text-sm font-medium pt-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
         
         {listItem.map(item => (

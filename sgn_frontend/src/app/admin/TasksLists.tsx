@@ -1,14 +1,7 @@
 
 import TaskCard from "../../Components/Atoms/taskcard";
-import CIcon from "@coreui/icons-react";
-import { cilCaretRight } from "@coreui/icons";
 import { Link } from "react-router-dom";
 
-
-interface adminTaskProps {
-    task: string;
-    subtasks: string[],
-}
 
 function TasksLists() {
     const adminTasks = [
@@ -42,7 +35,7 @@ function TasksLists() {
         },
         {
             task: "Gestion des Notes",
-            link: "/administration/depart_et_fil",
+            link: "/administration/notes",
             subtasks: [
                 "Importation de notes",
                 "Vérification des données",
@@ -90,8 +83,12 @@ function TasksLists() {
     
     return(
         <div>
-            <h1 className='text-x mb-5'> <CIcon icon={cilCaretRight} width={15} className='inline-block' color='blue'></CIcon> <Link to="/administration" className='hover:underline'>Administration </Link>
-            </h1>
+            <div className="text-base font-medium mb-5 text-blue-700">
+            <svg className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180 inline-block mr-2 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 9 4-4-4-4M1 9l4-4-4-4"/>
+                </svg> 
+                <Link to="/administration" className='hover:underline'>Administration </Link>
+            </div>
             <div className="grid grid-cols-4grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {adminTasks.map((item, index) => (
                     <Link to={item.link}>

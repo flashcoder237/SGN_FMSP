@@ -1,5 +1,5 @@
 import Api from './api';
-import { FiliereFormData } from '../admin/dataTypes/data';
+
 
 export const fetchFilieres = async () => {
     return Api.get('/filieres/');

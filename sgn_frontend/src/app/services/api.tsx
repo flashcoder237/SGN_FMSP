@@ -9,6 +9,8 @@ const Api = axios.create({
 
 export const setAuthToken = (token: string) => {
   Api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  Api.defaults.headers.common['X-CSRFToken'] = token;
+  Api.defaults.xsrfCookieName = 'csrftoken';
 };
 
 export default Api;
