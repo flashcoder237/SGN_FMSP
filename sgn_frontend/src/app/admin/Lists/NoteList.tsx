@@ -34,6 +34,7 @@ const [notes, setNotes] = useState<NoteFormData[]>([]);
 const [filterCurrentNotes, setFilterCurrentNotes] = useState<NoteFormData[]>([]);
 const [searchTerm, setSearchTerm] = useState<string>('');
 const [currentNotes, setCurrentNotes] = useState<NoteFormData[]>([]);
+const [searchPageTerm, setSearchPageTerm] = useState<string>('');
 const style = 'mx-2 px-4 w-40 py-4 font-medium relative rounded-lg text-white transition-all ease-in-out duration-150 bg-gradient-to-r from-blue-900 to-blue-500 cursor-pointer hover:scale-110'
 const style2 = 'mx-2 px-4 py-4 w-40 font-medium relative rounded-lg text-white transition-all ease-in-out duration-150 bg-gradient-to-r from-green-900 to-green-500 cursor-pointer hover:scale-110'
 const style2_1 = 'mx-2 px-4 py-4 w-40 font-medium relative rounded-lg text-white transition-all ease-in-out duration-150 bg-gradient-to-r from-gray-900 to-gray-500 cursor-pointer hover:scale-110'
@@ -143,6 +144,8 @@ const handleSelectElementConstitutif = async (EC : EC_DataForm) => {
 const handleNextClick = async () => {
     try{
         if(selectedUniteEnseignement){
+            setSelectedElementConstitutif(undefined)
+            setNotes([])
             const ECs = await getAllUcByUe(selectedUniteEnseignement.id ? selectedUniteEnseignement.id : -1)
             const mappedEcs = ECs.data.map((data : EC_DataForm) => 
                 ({
@@ -158,7 +161,7 @@ const handleNextClick = async () => {
             if(ECs.data.length > 0){
                 setCurrentStep(2);
             }
-        }
+        } 
     }catch(err){
 
     }
@@ -202,6 +205,7 @@ const handlebackClick = () => {
 };
 
 const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    paginate(1)
     setSearchTerm(e.target.value);
 };
 
@@ -243,6 +247,16 @@ useEffect(() => {
   const paginate = (pageNumber: number) => {
       setCurrentPage(pageNumber);
   }
+
+  const handleSearchPageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchPageTerm(e.target.value);
+};
+
+const handleChangePageSubmit = () => {
+    if( Number(searchPageTerm) > 0 && Number(searchPageTerm) <= Math.ceil(filterCurrentNotes.length / itemsPerPage)){
+        paginate(Number(searchPageTerm))
+    }
+}
 
    
     return (
@@ -430,10 +444,27 @@ useEffect(() => {
                                 ))}
                             </tbody>
                             </table>
-                            <nav className="flex items-center flex-rows flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
+                            <nav className="flex items-center flex-rows flex-wrap md:flex-row justify-between pt-4  border-b-2 pb-4" aria-label="Table navigation">
                             <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
                                 Elements <span className="font-semibold text-gray-900 dark:text-white">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, notes.length)}</span> sur <span className="font-semibold text-gray-900 dark:text-white">{(notes.length)}</span>
                             </span>
+                            <div>
+                            <div>
+                                    <span> Aller à la page : <input
+                                        type="number"
+                                        className="inline-block p-2  ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-20 bg-slate-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder={String(currentPage)}
+                                        value={searchPageTerm}
+                                        onChange={handleSearchPageChange}
+                                    /></span>
+                                    <div onClick={() => handleChangePageSubmit()} className='inline-block w-20 p-2 h-full mx-2 rounded-md text-sm ps-2 text-white font-medium bg-green-600 dark:text-blue-500 justify-center items-center text-center hover:bg-green-700 hover:scale-110 active:bg-green-800 transition-all ease-linear duration-150 cursor-pointer'>
+                                        <button type='button' className='self-center h-full w-full'>
+                                            ok
+                                        </button>
+                                    </div>
+                            </div>
+                            <div className={`text-sm italic text-red-700 ${(searchPageTerm === '' ||  Number(searchPageTerm) > 0 && Number(searchPageTerm) <= Math.ceil(filterCurrentNotes.length / itemsPerPage) ? 'hidden' : 'block')}`}>Veuillez entrer un nombre compris entre {"[0" + " et " + Math.ceil(filterCurrentNotes.length / itemsPerPage)+"]"} </div>
+                            </div>
                             <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                                 <li>
                                 <a
@@ -446,7 +477,15 @@ useEffect(() => {
                                     Précédant
                                 </a>
                                 </li>
-                                {Array.from({ length: Math.ceil(notes.length / itemsPerPage) }).map((_, index) => (
+                                <li>
+                                    <a
+                                        href="#"
+                                        className={'flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white bg-blue-50 text-blue-600'}
+                                        >
+                                        {currentPage + "/" + Math.ceil(filterCurrentNotes.length / itemsPerPage) }
+                                    </a> 
+                                </li>
+                                {/* {Array.from({ length: Math.ceil(notes.length / itemsPerPage) }).map((_, index) => (
                                 <li key={index}>
                                     <a
                                     href="#"
@@ -454,9 +493,9 @@ useEffect(() => {
                                     onClick={() => paginate(index + 1)}
                                     >
                                     {index + 1}
-                                    </a>
+                                    </a>s
                                 </li>
-                                ))}
+                                ))} */}
                                 <li>
                                 <a
                                     href="#"
