@@ -50,6 +50,7 @@ const [failedMessage, setFailedMessage] = useState("Oups! Quelque chose à mal t
 const [isChecked, setIsChecked] = useState(false); // Initial state set to true (checked)
 
 
+
 const handleToggle = () => {
   setIsChecked(!isChecked);
 };
