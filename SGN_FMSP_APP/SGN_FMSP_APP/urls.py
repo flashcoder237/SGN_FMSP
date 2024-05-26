@@ -20,6 +20,7 @@ from rest_framework.routers import DefaultRouter
 from SGN.views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from SGN.studentsViews.views import download_students_pdf
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -49,6 +50,7 @@ urlpatterns = [
     
     path('download_etudiant_template/', download_etudiant_template, name='download_etudiant_template'),
     path('import_etudiant_template/', import_students_from_excel, name='download_etudiant_template'),
+    path('download_students_pdf/<int:classe_id>/', download_students_pdf, name='download_students_pdf'),
     
     # JWT Auth URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

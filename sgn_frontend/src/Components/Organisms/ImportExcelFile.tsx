@@ -28,4 +28,3 @@ const ImportExcelFile = ({fileName,title, label, linked}:ImportFileData) => {
 };
 
 export default ImportExcelFile;
-// 'http://votre-api.com/download_template/' ''

@@ -368,7 +368,6 @@ useEffect(() => {
                             <tbody>
                                 {currentNotes && currentNotes.map((note, index) => (
                                     <tr className={`${!note.saisie ? "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-blue-50 cursor-pointer dark:hover:bg-gray-600 active:bg-blue-100 w-full " : (isChecked &&  "opacity-50 pointer-events-none cursor-not-allowed bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-600 active:bg-blue-100 w-full ")}`}>
-                                        {/* ... (render Etudiants data) */}
                                     <th scope="row" className="px-6 py-4 font-bold text-xl text-white whitespace-nowrap dark:text-white">
                                         <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-800 overflow-hidden'>
                                             <div className='rounded-full w-full overflow-hidden'>

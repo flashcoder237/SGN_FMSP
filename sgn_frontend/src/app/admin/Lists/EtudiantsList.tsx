@@ -11,8 +11,7 @@ import { deleteEtudiant } from '../../services/etudiantService';
 import SucessModal from '../../../Components/Organisms/SucessModal';
 import FailedModal from '../../../Components/Organisms/FailedModal';
 import SearchClasseForm from '../Forms/ClasseForm/ClasseForm';
-
-
+import { getPdfEtudiantByClasse } from '../../services/etudiantService';
 
 
 const EtudiantList: React.FC = () => {
@@ -47,16 +46,27 @@ const EtudiantList: React.FC = () => {
 };
 
 
+
     const [currentEtudiants, setCurrentEtudiants] = useState<StudentFormData[]>([]);
     const [filterCurrentEtudiants, setFilterCurrentEtudiants] = useState<StudentFormData[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [searchPageTerm, setSearchPageTerm] = useState<string>('');
+    const [classe , setClasse] = useState<number>(-1);
 
     
     const [resultAdd, setResultDel] = useState(false);
     const [failDel, setFailDel] = useState(false);
     const [failedMessage, setFailedMessage] = useState("Oups! Quelque chose à mal tournée"); 
 
-    
+    const handleGetPdfClick = async () => {
+        try {
+            const response = await getPdfEtudiantByClasse(52);
+            
+        } catch (error) {
+            console.error('Erreur lors du téléchargement du modèle de template:', error);
+        }
+    };
+
     function handleResultChange(){
       setResultDel(false);
   }
@@ -78,8 +88,17 @@ const EtudiantList: React.FC = () => {
   };
   
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+        paginate(1)
         setSearchTerm(e.target.value);
     };
+
+    const handleSearchPageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchPageTerm(e.target.value);
+    };
+
+    const handleChangePageSubmit = () => {
+        paginate(Number(searchPageTerm))
+    }
 
 
 
@@ -93,11 +112,12 @@ const EtudiantList: React.FC = () => {
         );
         setCurrentSearchFilterEtudiants(filteredEtudiants)
         setFilterCurrentEtudiants(filteredEtudiants.slice(indexOfFirstItem, indexOfLastItem));
+        setClasse(currentEtudiants[0] ? currentEtudiants[0].classe : -1)
     }, [searchTerm, currentEtudiants]);
 
    
 
-      const itemsPerPage = 3;
+      const itemsPerPage = 2;
       const [currentPage, setCurrentPage] = useState(1);
       const [CurrentFilterEtudiants, setCurrentFilterEtudiants] = useState<StudentFormData[]>([]);
       const [CurrentSearchFilterEtudiants, setCurrentSearchFilterEtudiants] = useState<StudentFormData[]>([]);
@@ -113,7 +133,7 @@ const EtudiantList: React.FC = () => {
     
       const paginate = (pageNumber: number) => {
         setCurrentPage(pageNumber)
-        setCurrentFilterEtudiants(CurrentSearchFilterEtudiants.slice(indexOfFirstItem, indexOfLastItem))
+        setFilterCurrentEtudiants(CurrentSearchFilterEtudiants.slice(indexOfFirstItem, indexOfLastItem))
       };
 
     return (
@@ -138,7 +158,6 @@ const EtudiantList: React.FC = () => {
                 onChange={handleSearchChange}
             />
 
-
             </div>
             </div>
 
@@ -160,7 +179,7 @@ const EtudiantList: React.FC = () => {
                 </tr>
             </thead>
             <tbody>
-                {filterCurrentEtudiants && filterCurrentEtudiants.map((etudiants) => (
+                {filterCurrentEtudiants && filterCurrentEtudiants   .map((etudiants) => (
                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" key={etudiants?.id}>
                     <td scope="row" className="px-6 py-4 font-bold text-xl text-white whitespace-nowrap dark:text-white">
                         <div className='flex flex-col justify-center text-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-800 overflow-hidden'>
@@ -198,10 +217,25 @@ const EtudiantList: React.FC = () => {
                 ))}
             </tbody>
             </table>
-            <nav className="flex items-center flex-rows flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
+            <nav className="flex items-center flex-rows flex-wrap md:flex-row justify-between pt-4 border-b-2 pb-4" aria-label="Table navigation">
             <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-                Elements <span className="font-semibold text-gray-900 dark:text-white">{indexOfFirstItem}-{Math.min(indexOfLastItem, filterCurrentEtudiants.length)}</span> sur <span className="font-semibold text-gray-900 dark:text-white">{filterCurrentEtudiants.length}</span>
+                Elements <span className="font-semibold text-gray-900 dark:text-white">{indexOfFirstItem}-{Math.min(indexOfLastItem, CurrentSearchFilterEtudiants.length)}</span> sur <span className="font-semibold text-gray-900 dark:text-white">{CurrentSearchFilterEtudiants.length}</span>
             </span>
+            <div>
+            <span> Aller à la page : <input
+                type="number"
+                className="inline-block p-2  ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-20 bg-slate-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder={String(currentPage)}
+                value={searchPageTerm}
+                onChange={handleSearchPageChange}
+            /></span>
+             <div onClick={() => handleChangePageSubmit()} className='inline-block w-20 p-2 h-full mx-2 rounded-md text-sm ps-2 text-white font-medium bg-green-600 dark:text-blue-500 justify-center items-center text-center hover:bg-green-700 hover:scale-110 active:bg-green-800 transition-all ease-linear duration-150 cursor-pointer'>
+                <button type='button' className='self-center h-full w-full'>
+                    ok
+                </button>
+            </div>
+            </div>
+
             <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                 <a
@@ -214,7 +248,15 @@ const EtudiantList: React.FC = () => {
                     Précédant
                 </a>
                 </li>
-                {Array.from({ length: Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage) }).map((_, index) => (
+                <li>
+                <a
+                    href="#"
+                    className={'flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white bg-blue-50 text-blue-600'}
+                    >
+                    {currentPage + "/" + Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage) }
+                    </a> 
+                </li>
+                {/* {Array.from({ length: Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage) }).map((_, index) => (
                 <li key={index}>
                     <a
                     href="#"
@@ -224,7 +266,7 @@ const EtudiantList: React.FC = () => {
                     {index + 1}
                     </a>
                 </li>
-                ))}
+                ))} */}
                 <li>
                 <a
                     href="#"
@@ -239,6 +281,11 @@ const EtudiantList: React.FC = () => {
                 </li>
             </ul>
             </nav>
+            <div 
+                onClick={handleGetPdfClick}
+                className='mt-4 mb-4 ml-4 px-4 w-60 py-4 font-medium relative rounded-lg text-white transition-all ease-in-out duration-150 bg-gradient-to-r from-blue-900 to-blue-500 cursor-pointer hover:scale-110'>
+                Imprimer la liste des etudiants de cette classe
+            </div>
         </div> : <div> Veuiller remplir les champs ou Aucun etudiants n'existe pour les champs défini </div> 
         }
         <div className={`${resultAdd ? 'block transition-all ease-in duration-150':'hidden'}`}>

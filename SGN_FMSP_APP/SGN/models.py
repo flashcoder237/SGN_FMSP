@@ -148,7 +148,7 @@ class Classe(models.Model):
     niveau = models.IntegerField(help_text="Classe dans la filière, ex: 1 pour première année")
 
     def __str__(self):
-        return f"{self.option} : Niveau {self.niveau}"
+        return f"{self.option} : Niveau {self.niveau}-{self.annee_academique}"
     
     class Meta:
         unique_together = ['option', 'annee_academique', 'niveau']    

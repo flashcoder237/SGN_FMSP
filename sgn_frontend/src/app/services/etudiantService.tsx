@@ -30,6 +30,21 @@ export const getEtudiantByClasse = async (classe: number) => {
     }
 };
 
+export const getPdfEtudiantByClasse = async (classe: number) => {
+    try{
+        const response = await Api.get(`/download_students_pdf/${classe}`,{
+            responseType: 'blob',
+        });
+        console.log(response.data)
+        const url = window.URL.createObjectURL(new Blob([response.data], {type: "application/pdf"})); // Supposons que le champ 'url' contient l'URL du modèle de template
+        window.open(url, '_blank');
+    }catch(error : any){
+        console.error('Erreur lors de la récupération des étudiants par classe :', error);
+        throw error;
+    }
+};
+
+
 export const createEtudiant = async (etudiantData: { matricule: string, nom: string, prenom: string, date_naissance: string, photo: File | null}, classe: {id: number}) => {
     const formData = new FormData();
     formData.append('matricule', etudiantData.matricule);
