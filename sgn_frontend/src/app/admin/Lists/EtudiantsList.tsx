@@ -52,6 +52,7 @@ const EtudiantList: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [searchPageTerm, setSearchPageTerm] = useState<string>('');
     const [classe , setClasse] = useState<number>(-1);
+    
 
     
     const [resultAdd, setResultDel] = useState(false);
@@ -97,7 +98,9 @@ const EtudiantList: React.FC = () => {
     };
 
     const handleChangePageSubmit = () => {
-        paginate(Number(searchPageTerm))
+        if( Number(searchPageTerm) > 0 && Number(searchPageTerm) <= Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage)){
+            paginate(Number(searchPageTerm))
+        }
     }
 
 
@@ -222,18 +225,21 @@ const EtudiantList: React.FC = () => {
                 Elements <span className="font-semibold text-gray-900 dark:text-white">{indexOfFirstItem}-{Math.min(indexOfLastItem, CurrentSearchFilterEtudiants.length)}</span> sur <span className="font-semibold text-gray-900 dark:text-white">{CurrentSearchFilterEtudiants.length}</span>
             </span>
             <div>
-            <span> Aller à la page : <input
-                type="number"
-                className="inline-block p-2  ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-20 bg-slate-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder={String(currentPage)}
-                value={searchPageTerm}
-                onChange={handleSearchPageChange}
-            /></span>
-             <div onClick={() => handleChangePageSubmit()} className='inline-block w-20 p-2 h-full mx-2 rounded-md text-sm ps-2 text-white font-medium bg-green-600 dark:text-blue-500 justify-center items-center text-center hover:bg-green-700 hover:scale-110 active:bg-green-800 transition-all ease-linear duration-150 cursor-pointer'>
-                <button type='button' className='self-center h-full w-full'>
-                    ok
-                </button>
+                <div>
+                <span> Aller à la page : <input
+                    type="number"
+                    className="inline-block p-2  ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-20 bg-slate-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder={String(currentPage)}
+                    value={searchPageTerm}
+                    onChange={handleSearchPageChange}
+                /></span>
+                <div onClick={() => handleChangePageSubmit()} className='inline-block w-20 p-2 h-full mx-2 rounded-md text-sm ps-2 text-white font-medium bg-green-600 dark:text-blue-500 justify-center items-center text-center hover:bg-green-700 hover:scale-110 active:bg-green-800 transition-all ease-linear duration-150 cursor-pointer'>
+                    <button type='button' className='self-center h-full w-full'>
+                        ok
+                    </button>
+                </div>
             </div>
+            <div className={`text-sm italic text-red-700 ${(searchPageTerm === '' ||  Number(searchPageTerm) > 0 && Number(searchPageTerm) <= Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage) ? 'hidden' : 'block')}`}>Veuillez entrer un nombre compris entre {"[0" + " et " + Math.ceil(CurrentSearchFilterEtudiants.length / itemsPerPage)+"]"} </div>
             </div>
 
             <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
